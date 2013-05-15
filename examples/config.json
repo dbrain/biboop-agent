@@ -1,0 +1,7 @@
+{
+  "biboopServer": "https://biboop-web.appspot.com",
+  "name": "george",
+  "description": "Desktop in study",
+  "minimumPollTimeSec": 1,
+  "serverKey": "test@example.com-1368391092-af97e6b26c664243b08deb0a50fdc368"
+}
