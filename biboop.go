@@ -27,7 +27,7 @@ type PollRequest struct {
   Name string `json:"name,omitempty"`
   Description string `json:"description,omitempty"`
   MinimumPollTimeSec int `json:"minimumPollTimeSec,omitempty"`
-  ServerKey string `json:"serverKey,omitempty"`
+  ServerAPIKey string `json:"serverApiKey,omitempty"`
   ServerID string `json:"serverId,omitempty"`
 }
 
@@ -35,7 +35,7 @@ type Config struct {
   Name string `json:"name,omitempty"`
   Description string `json:"description,omitempty"`
   MinimumPollTimeSec int `json:"minimumPollTimeSec,omitempty"`
-  ServerKey string `json:"serverKey,omitempty"`
+  ServerAPIKey string `json:"serverApiKey,omitempty"`
   ServerID string `json:"serverId,omitempty"`
   BiboopServer string `json:"biboopServer,omitempty"`
 }
@@ -84,7 +84,7 @@ func buildPollRequestBody() *bytes.Buffer {
     Name: config.Name,
     Description: config.Description,
     MinimumPollTimeSec: config.MinimumPollTimeSec,
-    ServerKey: config.ServerKey,
+    ServerAPIKey: config.ServerAPIKey,
     ServerID: config.ServerID }
   if requestBytes, err = json.Marshal(pollRequest); err != nil {
     log.Println("Failed to marshal request JSON")
