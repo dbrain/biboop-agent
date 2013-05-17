@@ -64,7 +64,7 @@ func executeRequest(pollUrl string) {
 
   body, err = ioutil.ReadAll(resp.Body)
   defer resp.Body.Close()
-  if err != nil || resp.StatusCode != http.StatusOK || resp.StatusCode != http.StatusCreated {
+  if err != nil || (resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated) {
     log.Println("Request failed", err, resp.StatusCode, string(body))
     return
   }
