@@ -72,8 +72,6 @@ func executeRequest(pollUrl string) {
   var pollResponse PollResponse
   if err = json.Unmarshal(body, &pollResponse); err != nil {
     log.Println("Failed to parse response body")
-  } else {
-    log.Println("Request succeeded")
   }
 }
 
