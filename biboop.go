@@ -47,30 +47,30 @@ func startPolling() {
   var pollTime = time.Duration(config.MinimumPollTimeSec) * time.Second
   var pollUrl = strings.Join([]string{config.BiboopServer, "api", "server", "poll"}, "/")
   for {
-    executeRequest(pollUrl)
+    var pollRequest PollRequest
+    executeRequest(pollUrl, buildPollRequestBody(), &pollRequest)
     time.Sleep(pollTime)
   }
 }
 
-func executeRequest(pollUrl string) {
+func executeRequest(url string, request *bytes.Buffer, result interface{}) {
   var resp *http.Response
   var body []byte
   var err error
 
-  if resp, err = http.Post(pollUrl, contentType, buildPollRequestBody()); err != nil {
+  if resp, err = http.Post(url, contentType, request); err != nil {
     log.Println("Request failed", err)
     return
   }
 
-  body, err = ioutil.ReadAll(resp.Body)
   defer resp.Body.Close()
+  body, err = ioutil.ReadAll(resp.Body)
   if err != nil || (resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated) {
     log.Println("Request failed", err, resp.StatusCode, string(body))
     return
   }
 
-  var pollResponse PollResponse
-  if err = json.Unmarshal(body, &pollResponse); err != nil {
+  if err = json.Unmarshal(body, &result); err != nil {
     log.Println("Failed to parse response body")
   }
 }
