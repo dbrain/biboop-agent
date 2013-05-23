@@ -3,6 +3,6 @@
   "name": "george",
   "description": "Desktop in study",
   "minimumPollTimeSec": 10,
-  "minimumUpdateTimeSec": 60,
-  "serverApiKey": "test@example.com-1368391092-af97e6b26c664243b08deb0a50fdc368"
+  "minimumUpdateTimeSec": 120,
+  "serverApiKey": "test@example.com-1369133061-3fda2bf81f24484984f2ab58ef0a09cc"
 }

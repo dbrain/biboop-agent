@@ -23,7 +23,19 @@ type PollResponse struct {
   Server PollResponseServer `json:"server,omitempty"`
 }
 
+type UpdateResponse struct {
+  Server PollResponseServer `json:"server,omitempty"`
+}
+
 type PollRequest struct {
+  Name string `json:"name,omitempty"`
+  Description string `json:"description,omitempty"`
+  MinimumPollTimeSec int `json:"minimumPollTimeSec,omitempty"`
+  ServerAPIKey string `json:"serverApiKey,omitempty"`
+  ServerID string `json:"serverId,omitempty"`
+}
+
+type UpdateRequest struct {
   Name string `json:"name,omitempty"`
   Description string `json:"description,omitempty"`
   MinimumPollTimeSec int `json:"minimumPollTimeSec,omitempty"`
@@ -35,6 +47,7 @@ type Config struct {
   Name string `json:"name,omitempty"`
   Description string `json:"description,omitempty"`
   MinimumPollTimeSec int `json:"minimumPollTimeSec,omitempty"`
+  MinimumUpdateTimeSec int `json:"minimumUpdateTimeSec,omitempty"`
   ServerAPIKey string `json:"serverApiKey,omitempty"`
   ServerID string `json:"serverId,omitempty"`
   BiboopServer string `json:"biboopServer,omitempty"`
@@ -44,13 +57,29 @@ var config *Config
 
 func startPolling() {
   log.Println("Starting to poll")
-  var pollTime = time.Duration(config.MinimumPollTimeSec) * time.Second
-  var pollUrl = strings.Join([]string{config.BiboopServer, "api", "server", "poll"}, "/")
+  pollUrl := strings.Join([]string{config.BiboopServer, "api", "server", "poll"}, "/")
+  updateUrl := strings.Join([]string{config.BiboopServer, "api", "server", "update"}, "/")
+
+  initRequest(updateUrl)
+
+  pollTicker := time.NewTicker(time.Duration(config.MinimumPollTimeSec) * time.Second)
+  updateTicker := time.NewTicker(time.Duration(config.MinimumUpdateTimeSec) * time.Second)
+
   for {
-    var pollRequest PollRequest
-    executeRequest(pollUrl, buildPollRequestBody(), &pollRequest)
-    time.Sleep(pollTime)
+    select {
+    case <- pollTicker.C:
+      var pollResponse PollResponse
+      executeRequest(pollUrl, buildPollRequestBody(), &pollResponse)
+    case <- updateTicker.C:
+      var updateResponse UpdateResponse
+      executeRequest(updateUrl, buildUpdateRequestBody(), &updateResponse)
+    }
   }
+}
+
+func initRequest(updateUrl string) {
+  var updateResponse UpdateResponse
+  executeRequest(updateUrl, buildUpdateRequestBody(), &updateResponse)
 }
 
 func executeRequest(url string, request *bytes.Buffer, result interface{}) {
@@ -85,6 +114,23 @@ func buildPollRequestBody() *bytes.Buffer {
     ServerAPIKey: config.ServerAPIKey,
     ServerID: config.ServerID }
   if requestBytes, err = json.Marshal(pollRequest); err != nil {
+    log.Println("Failed to marshal request JSON")
+    panic(err)
+  }
+
+  return bytes.NewBuffer(requestBytes)
+}
+
+func buildUpdateRequestBody() *bytes.Buffer {
+  var requestBytes []byte
+  var err error
+  updateRequest := UpdateRequest{
+    Name: config.Name,
+    Description: config.Description,
+    MinimumPollTimeSec: config.MinimumPollTimeSec,
+    ServerAPIKey: config.ServerAPIKey,
+    ServerID: config.ServerID }
+  if requestBytes, err = json.Marshal(updateRequest); err != nil {
     log.Println("Failed to marshal request JSON")
     panic(err)
   }
